@@ -4,63 +4,50 @@ using UnityEngine;
 
 public class AdaptiveAudioManager : MonoBehaviour
 {
+	[Tooltip("A container for a Curves script. This script stores AnimationCurves in an array. (Optional)")]public Curves optionalCurveSource;
 
-	//public static AdaptiveAudioManager instance;
-
-	public AudioMixerGroup mixerGroup;
-
-	public AnimationCurve curve;
-	public float fadeDuration = 3f;
-	public Sound[] layers;
-
-	private bool isPaused = false;
-
+	[Tooltip("The default mixer group that all sounds will inherit. This can be changed per-sound.")] public AudioMixerGroup mixerGroup;
+	[Tooltip("The default fade curve that all sounds will inherit. This can be changed using the setCurve(AnimationCurve) method.")] public AnimationCurve defaultCurve;
+	[Tooltip("The default fade duration that all sounds will inherit. This can be changed using the setFadeDuration(float) method.")]public float fadeDuration = 3f;
+	[Tooltip("When true, all sounds will restart after they are finished.")]public bool loop;
+	[Tooltip("When true, the stopStart() method will be called before the first Update() call.")]public bool playOnStart;
+	[Tooltip("Add your sounds here.")]public Sound[] layers;
+	
+	public bool isPaused = false;
+	public bool isStopped = true;
+	private bool exclusiveIsActive;
 
 	void Awake()
 	{
-
 		if (layers == null)
 		{
 			Debug.LogWarning("The Adaptive Sound Manager has not been given any audio to play. Add audio tracks to the layers[] array in the editor.");
 			return;
 		}	
 		
-		
 		foreach (Sound s in layers)
 		{
 			s.source = gameObject.AddComponent<AudioSource>();
 			s.source.clip = s.clip;
-			s.source.loop = s.loop;
-
+			s.source.loop = loop;
 			s.source.outputAudioMixerGroup = mixerGroup;
-
 			s.source.volume = s.volume;
+
+			if(s.isExclusive && s.isActive)
+				exclusiveIsActive = true;
 		}
 	}
 
 	void Start()
 	{
-		foreach(Sound s in layers)
-		{
-			s.source.Play();
-		}
+		if(playOnStart)
+			stopStart();
 	}
 
 	void FixedUpdate()
 	{
-		if(layers[0].isActive)
-		{
-			masterIsActive = true;
-		}
-		else
-		{
-			masterIsActive = false;
-		}
-
 		foreach(Sound s in layers)
-		{
 			s.Update();
-		}
 	}
 
 	public void setFadeDuration(float d)
@@ -68,73 +55,111 @@ public class AdaptiveAudioManager : MonoBehaviour
 		fadeDuration = d;
 	}
 
-	public bool masterIsActive = true;
+	public void setCurve(AnimationCurve curve)
+	{
+		defaultCurve = curve;
+	}
+
 	public void Play(int index)
 	{
-		if(index == 0)
+		if(layers[index].isExclusive)
 		{
-			if(masterIsActive)
+			if(layers[index].isActive)
 			{
 				fadeOut(layers[index]);
+				exclusiveIsActive = false;
 			}
 			else
 			{
 				fadeOut();
 				fadeIn(layers[index]);
+				exclusiveIsActive = true;
 			}
 		}
-		else if(layers[index].isActive)
+		else if(exclusiveIsActive)
 		{
-			fadeOut(layers[index]);
+			fadeOut();
+			fadeIn(layers[index]);
+			exclusiveIsActive = false;
 		}
 		else
 		{
-			fadeOut(layers[0]);
-			fadeIn(layers[index]);
-		}
-	}
-
-    public void fadeOut(Sound sound)
-	{
-		sound.fadeOut(curve, fadeDuration);
-	}
-
-	public void fadeOut()
-	{
-		foreach(Sound s in layers)
-		{
-			s.fadeOut(curve, fadeDuration);
-		}
-	}
-
-	public void fadeIn(Sound sound)
-	{
-		sound.fadeIn(curve, fadeDuration);
-	}
-
-	public void fadeIn()
-	{
-		foreach(Sound s in layers)
-		{
-			s.fadeIn(curve, fadeDuration);
-		}
-	}
-
-	public void pause()
-	{
-		foreach(Sound s in layers)
-		{
-			if(isPaused)
-			{
-				s.source.UnPause();
-				isPaused = false;
-			}
+			if(layers[index].isActive)
+				fadeOut(layers[index]);
 			else
-			{
-				s.source.Pause();
-				isPaused = true;
-			}
+				fadeIn(layers[index]);
 		}
 	}
+
+	public void stopStart()
+	{
+		if(isStopped)
+		{
+			foreach(Sound s in layers)
+			{	
+				s.source.Play();
+			}
+			isStopped = false;
+		}
+		else
+		{
+			foreach(Sound s in layers)
+			{
+				s.source.Stop();
+				
+			}
+			isStopped = true;
+		}
+	}
+
+	public void playPause()
+	{
+		if(isPaused)
+		{
+			foreach(Sound s in layers)
+			{	
+				s.source.pitch = 1;
+			}
+			isPaused = false;
+		}
+		else
+		{
+			foreach(Sound s in layers)
+			{
+				s.source.pitch = 0;
+				
+			}
+			isPaused = true;
+		}
+	}
+
+
+
+	private void fadeOut(Sound sound)
+	{
+		sound.fadeOut(defaultCurve, fadeDuration);
+	}
+
+	private void fadeOut()
+	{
+		foreach(Sound s in layers)
+		{
+			s.fadeOut(defaultCurve, fadeDuration);
+		}
+	}
+
+	private void fadeIn(Sound sound)
+	{
+		sound.fadeIn(defaultCurve, fadeDuration);
+	}
+
+	private void fadeIn()
+	{
+		foreach(Sound s in layers)
+		{
+			s.fadeIn(defaultCurve, fadeDuration);
+		}
+	}
+
 }
 	

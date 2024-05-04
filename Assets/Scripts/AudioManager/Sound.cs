@@ -5,41 +5,27 @@ using UnityEngine;
 public class Sound 
  {
 
-	public string name;
-
-	public AudioClip clip;
-
-	[Range(0f, 1f)]
-	public float volume = .75f;
-
-
-	public bool loop = false;
-
-	public AudioMixerGroup mixerGroup;
-
-	[HideInInspector]
-	public AudioSource source;
-
+	[Tooltip("The name of the track.")] public string name;
+	[Tooltip("Place your audio file here.")] public AudioClip clip;
+	[Tooltip("The starting volume of your track. If this is the track that the music starts with, set this to 1, otherwise set to 0.")][Range(0f, 1f)] [Min(0f)] public float volume = 1f;
+	[Tooltip("If enabling this track will disable all other tracks, and vice versa.")]public bool isExclusive;
+	[Tooltip("The mixer group of this track.")]public AudioMixerGroup mixerGroup;
+	[Space(5)]
+	[Header("Script Controlled Variables - Should not edit.")]
+	[Tooltip("When true, this track is faded in.")] public bool isActive;
 	private bool isFadingIn; 
-	
 	private bool isFadingOut;
 	private float elapsedTimeIn;
 	private float elapsedTimeOut;
-	 [SerializeField]
 	private float percentageCompleteIn;
-	 [SerializeField]
 	private float percentageCompleteOut;
 	private float fadeDuration;
 	private AnimationCurve curve;
-
-	public bool isActive;
-
-
+	
+	[HideInInspector] public AudioSource source;
 
 	public void Update()
 	{
-		//Debug.Log("" + name + " fading in status: " + isFadingIn);
-		//Debug.Log("" + name + " fading out status: " + isFadingOut);
 		if(isFadingIn == true)
 		{
 			fadeIn(curve, fadeDuration);
@@ -63,9 +49,7 @@ public class Sound
 		}
 		else
 		{
-				
 				isActive = true;
-				//Debug.Log("To fade in = " + toFadeIn.name);
 				isFadingIn = true;
 				float startingVol = source.volume;
 				elapsedTimeIn += Time.deltaTime; 
@@ -73,11 +57,8 @@ public class Sound
 
 				source.volume = Mathf.Lerp(startingVol, 1, curve.Evaluate(percentageCompleteIn));
 
-				//Debug.Log(percentageComplete);
 				if(percentageCompleteIn >= 1)
-				{
 					fadeInEnd();
-				}
 		}
 	}
 
@@ -100,7 +81,6 @@ public class Sound
 		else
 		{
 			isActive = false;
-			//Debug.Log("To fade out = " + toFadeOut.name);
 			isFadingOut = true;
 			float startingVol = source.volume;
 			elapsedTimeOut += Time.deltaTime;
@@ -108,11 +88,8 @@ public class Sound
 
 			source.volume = Mathf.Lerp(startingVol, 0, curve.Evaluate(percentageCompleteOut));
 			
-			//Debug.Log(percentageComplete);
 			if(percentageCompleteOut >= 1)
-			{
 				fadeOutEnd();
-			}
 		}
 	}
 

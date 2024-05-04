@@ -1,0 +1,27 @@
+Changelog for 1.1
+    -General readability changes in scripts and in editor
+    -Replaced the master track system with the track exclusivity system, because the AAS is not optimized for small parts of a singular big song
+    -Added prefabs for curves and the audio manager
+    -Added NEW demo track; Cardinal Sin by FyRE_FREE from the Cardinal Chaos OST
+
+    -Demo UI: Added play/pause button
+    -Demo UI: Used Webdings to add media control icons
+
+    -Files: Added Prefabs folder
+    -Files: Removed Curves prefab from Scripts\Misc
+    -Files: Removed the curve image
+    -Files: Added this Changelog.txt file
+    -Files: Added Visuals\Fonts folder with Webdings inside(Needed for its media control characters)
+
+    -AdaptiveAudioManager: Added a Play On Start toggle, moved starting logic to it's own method StartAll()
+    -AdaptiveAudioManager: Made the loop toggle controlled by the manager
+    -AdaptiveAudioManager: Added the Curves optionalCurveSource variable to access custom curves made visually
+    -AdaptiveAudioManager: Changed variable 'curve' to 'defaultCurve'
+    -AdaptiveAudioManager: Added StartAll() method that plays all tracks when called
+    -AdaptiveAudioManager: Added setCurve method that takes in a curve and sets defaultCurve to it. Made to work with a curve source
+    -AdaptiveAudioManager: Replaced pause() with playPause, and now toggles pitch betweem 0 and 1
+    -AdaptiveAudioManager: Added stopStart() method, which stops and restarts the music
+
+    -Sound: Removed loop bool, now controlled by the manager
+    -Sound: Made percentageComplete floats invisible in editor
+    -Sound: Added isExclusive bool to specify if it should play by itself
