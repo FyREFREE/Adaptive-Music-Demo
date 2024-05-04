@@ -7,4 +7,4 @@
 You can also use the `Scripts\Misc\Curves.cs\` script to create AnimationCurves visually in the editor, and store them in a public array for easy swapping of curves in the AAM script.
 
 #  *Implementation*
-The parent class `AdaptiveAudioManager` stores `Sound` objects in an array named `layers`. They contain definitions for `volume`, `isExclusive`, etc. When the scene is started, the *AAM* script creates the `Sound` objects that you made in the editor. The `Sound` objects create 'Audio Source' components in the GameObject and plays all of the Sounds at once. It is recommended to have a main track that starts at a volume of *1*, and the other tracks start at *0*. 
+The parent class `AdaptiveAudioManager` stores `Sound` objects in an array named `layers`. They contain definitions for `volume`, `isExclusive`, etc. When the scene is started, the *AAM* script creates the `Sound` objects that you made in the editor. The `Sound` objects create 'Audio Source' components in the GameObject and plays all of the Sounds at once. It is recommended to have a main track that starts at a volume of *1*, and the other tracks start at *0*.    
